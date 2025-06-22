@@ -3,11 +3,10 @@ import java.util.*;
 public class CountryCurrencyConverter {
 
     private static final LinkedHashMap<String, String> COUNTRY_TO_CURRENCY = new LinkedHashMap<>();
-    private static final Map<String, Double> CURRENCY_TO_USD_RATE = new HashMap<>();
+    private static final Map<String, Double> CURRENCY_TO_USD = new HashMap<>();
     private static final Scanner SCANNER = new Scanner(System.in);
 
     static {
-        // Country to currency code
         COUNTRY_TO_CURRENCY.put("India", "INR");
         COUNTRY_TO_CURRENCY.put("United States", "USD");
         COUNTRY_TO_CURRENCY.put("Eurozone", "EUR");
@@ -34,95 +33,117 @@ public class CountryCurrencyConverter {
         COUNTRY_TO_CURRENCY.put("Pakistan", "PKR");
         COUNTRY_TO_CURRENCY.put("UAE", "AED");
 
-        // Currency to USD conversion rates
-        CURRENCY_TO_USD_RATE.put("USD", 1.0);
-        CURRENCY_TO_USD_RATE.put("INR", 83.2);
-        CURRENCY_TO_USD_RATE.put("EUR", 0.92);
-        CURRENCY_TO_USD_RATE.put("GBP", 0.78);
-        CURRENCY_TO_USD_RATE.put("JPY", 157.3);
-        CURRENCY_TO_USD_RATE.put("AUD", 1.49);
-        CURRENCY_TO_USD_RATE.put("CAD", 1.37);
-        CURRENCY_TO_USD_RATE.put("CHF", 0.89);
-        CURRENCY_TO_USD_RATE.put("CNY", 7.26);
-        CURRENCY_TO_USD_RATE.put("RUB", 89.5);
-        CURRENCY_TO_USD_RATE.put("BRL", 5.42);
-        CURRENCY_TO_USD_RATE.put("ZAR", 18.11);
-        CURRENCY_TO_USD_RATE.put("MXN", 18.5);
-        CURRENCY_TO_USD_RATE.put("KRW", 1380.0);
-        CURRENCY_TO_USD_RATE.put("SGD", 1.35);
-        CURRENCY_TO_USD_RATE.put("NZD", 1.61);
-        CURRENCY_TO_USD_RATE.put("SEK", 10.8);
-        CURRENCY_TO_USD_RATE.put("NOK", 10.5);
-        CURRENCY_TO_USD_RATE.put("TRY", 32.5);
-        CURRENCY_TO_USD_RATE.put("IDR", 16000.0);
-        CURRENCY_TO_USD_RATE.put("THB", 36.7);
-        CURRENCY_TO_USD_RATE.put("MYR", 4.7);
-        CURRENCY_TO_USD_RATE.put("BDT", 117.0);
-        CURRENCY_TO_USD_RATE.put("PKR", 278.0);
-        CURRENCY_TO_USD_RATE.put("AED", 3.67);
+        CURRENCY_TO_USD.put("USD", 1.0);
+        CURRENCY_TO_USD.put("INR", 83.2);
+        CURRENCY_TO_USD.put("EUR", 0.92);
+        CURRENCY_TO_USD.put("GBP", 0.78);
+        CURRENCY_TO_USD.put("JPY", 157.3);
+        CURRENCY_TO_USD.put("AUD", 1.49);
+        CURRENCY_TO_USD.put("CAD", 1.37);
+        CURRENCY_TO_USD.put("CHF", 0.89);
+        CURRENCY_TO_USD.put("CNY", 7.26);
+        CURRENCY_TO_USD.put("RUB", 89.5);
+        CURRENCY_TO_USD.put("BRL", 5.42);
+        CURRENCY_TO_USD.put("ZAR", 18.11);
+        CURRENCY_TO_USD.put("MXN", 18.5);
+        CURRENCY_TO_USD.put("KRW", 1380.0);
+        CURRENCY_TO_USD.put("SGD", 1.35);
+        CURRENCY_TO_USD.put("NZD", 1.61);
+        CURRENCY_TO_USD.put("SEK", 10.8);
+        CURRENCY_TO_USD.put("NOK", 10.5);
+        CURRENCY_TO_USD.put("TRY", 32.5);
+        CURRENCY_TO_USD.put("IDR", 16000.0);
+        CURRENCY_TO_USD.put("THB", 36.7);
+        CURRENCY_TO_USD.put("MYR", 4.7);
+        CURRENCY_TO_USD.put("BDT", 117.0);
+        CURRENCY_TO_USD.put("PKR", 278.0);
+        CURRENCY_TO_USD.put("AED", 3.67);
     }
 
     public static void main(String[] args) {
-        System.out.println("=== Currency Converter ===");
-        displayCountries();
+        printWelcome();
 
-        String fromCountry = selectCountry("FROM");
-        if (fromCountry == null) return;
+        boolean continueConversion = true;
+        while (continueConversion) {
+            displayCountryList();
 
-        String toCountry = selectCountry("TO");
-        if (toCountry == null) return;
+            String fromCountry = selectCountry("🌍 FROM Country Number");
+            if (fromCountry == null) continue;
 
-        double amount = inputAmount();
-        if (amount < 0) return;
+            String toCountry = selectCountry("✈️ TO Country Number");
+            if (toCountry == null) continue;
 
-        String fromCurrency = COUNTRY_TO_CURRENCY.get(fromCountry);
-        String toCurrency = COUNTRY_TO_CURRENCY.get(toCountry);
+            double amount = enterAmount();
+            if (amount < 0) continue;
 
-        double convertedAmount = convertCurrency(fromCurrency, toCurrency, amount);
-        System.out.printf("%n%.2f %s (%s) = %.2f %s (%s)%n",
-                amount, fromCurrency, fromCountry,
-                convertedAmount, toCurrency, toCountry);
+            String fromCurrency = COUNTRY_TO_CURRENCY.get(fromCountry);
+            String toCurrency = COUNTRY_TO_CURRENCY.get(toCountry);
+
+            double converted = convertCurrency(fromCurrency, toCurrency, amount);
+
+            printResult(fromCountry, toCountry, fromCurrency, toCurrency, amount, converted);
+
+            System.out.print("\n🔁 Would you like to convert again? (yes/no): ");
+            continueConversion = SCANNER.nextLine().trim().equalsIgnoreCase("yes");
+        }
+
+        System.out.println("\n🌟 Thank you for using the Currency Converter! Goodbye.");
     }
 
-    private static void displayCountries() {
-        int index = 1;
+    private static void printWelcome() {
+        System.out.println("╔════════════════════════════════════════════╗");
+        System.out.println("║          🌎 WELCOME TO CURRENCY HUB        ║");
+        System.out.println("╚════════════════════════════════════════════╝");
+    }
+
+    private static void displayCountryList() {
+        System.out.println("\n📋 Available Countries:");
+        int i = 1;
         for (String country : COUNTRY_TO_CURRENCY.keySet()) {
-            System.out.printf("%2d. %s%n", index++, country);
+            System.out.printf(" %2d. %-20s [%s]%n", i++, country, COUNTRY_TO_CURRENCY.get(country));
         }
     }
 
-    private static String selectCountry(String label) {
-        System.out.printf("%nEnter number for %s country: ", label);
+    private static String selectCountry(String promptLabel) {
         try {
-            int choice = Integer.parseInt(SCANNER.nextLine().trim());
-            if (choice < 1 || choice > COUNTRY_TO_CURRENCY.size()) {
-                System.out.println("Invalid selection. Please try again.");
+            System.out.print("\n" + promptLabel + ": ");
+            int selection = Integer.parseInt(SCANNER.nextLine().trim());
+            List<String> countryList = new ArrayList<>(COUNTRY_TO_CURRENCY.keySet());
+            if (selection < 1 || selection > countryList.size()) {
+                System.out.println("⚠️ Invalid selection. Please enter a valid number.");
                 return null;
             }
-            return new ArrayList<>(COUNTRY_TO_CURRENCY.keySet()).get(choice - 1);
+            return countryList.get(selection - 1);
         } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a number.");
+            System.out.println("⚠️ Please enter a valid number.");
             return null;
         }
     }
 
-    private static double inputAmount() {
-        System.out.print("Enter amount to convert: ");
+    private static double enterAmount() {
         try {
+            System.out.print("\n💰 Enter amount to convert: ");
             double amount = Double.parseDouble(SCANNER.nextLine().trim());
             if (amount < 0) {
-                System.out.println("Amount must be positive.");
+                System.out.println("⚠️ Amount must be positive.");
                 return -1;
             }
             return amount;
         } catch (NumberFormatException e) {
-            System.out.println("Invalid amount entered.");
+            System.out.println("⚠️ Invalid amount entered.");
             return -1;
         }
     }
 
-    private static double convertCurrency(String fromCode, String toCode, double amount) {
-        double inUSD = amount / CURRENCY_TO_USD_RATE.get(fromCode);
-        return inUSD * CURRENCY_TO_USD_RATE.get(toCode);
+    private static double convertCurrency(String from, String to, double amount) {
+        double usdValue = amount / CURRENCY_TO_USD.get(from);
+        return usdValue * CURRENCY_TO_USD.get(to);
+    }
+
+    private static void printResult(String fromCountry, String toCountry, String fromCurrency, String toCurrency, double amount, double result) {
+        System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.printf("🔄 Converting %.2f %s (%s)%n", amount, fromCurrency, fromCountry);
+        System.out.printf("✅ Result: %.2f %s (%s)%n", result, toCurrency, toCountry);
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     }
 }
